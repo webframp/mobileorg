@@ -398,9 +398,19 @@ class Settings: ObservableObject {
         didSet { UserDefaults.standard.set(webdavUsername, forKey: "webdavUsername") }
     }
     
-    // NOTE: In production, passwords should be stored in Keychain, not UserDefaults
-    // This is simplified for the example. Use Security framework APIs:
-    // SecItemAdd, SecItemUpdate, SecItemCopyMatching for secure password storage
+    // SECURITY WARNING: Passwords stored in UserDefaults in this example for simplicity.
+    // PRODUCTION CODE MUST USE KEYCHAIN for secure credential storage!
+    //
+    // Proper implementation would use KeychainHelper (see MODERNIZATION_PLAN.md Section 6.1):
+    //   - Save: KeychainHelper.save(password: value, service: "MobileOrg", account: "webdav")
+    //   - Retrieve: KeychainHelper.retrieve(service: "MobileOrg", account: "webdav")
+    //   - Delete: KeychainHelper.delete(service: "MobileOrg", account: "webdav")
+    //
+    // The Keychain provides:
+    //   - Hardware encryption on device
+    //   - Not backed up to iCloud/iTunes (by default)
+    //   - Secured by device passcode
+    //   - Protected from unauthorized access
     @Published var webdavPassword: String {
         didSet { UserDefaults.standard.set(webdavPassword, forKey: "webdavPassword") }
     }

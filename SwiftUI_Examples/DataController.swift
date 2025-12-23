@@ -111,6 +111,9 @@ class DataController: ObservableObject {
     
     /// Check if there are unsynchronized changes
     private func checkForUnsyncedChanges() async {
+        // NOTE: Using string-based entity name for compatibility with existing Objective-C models
+        // Once Core Data models are migrated to Swift, this should use:
+        // let request = LocalEditAction.fetchRequest()
         let request = NSFetchRequest<NSManagedObject>(entityName: "LocalEditAction")
         
         do {

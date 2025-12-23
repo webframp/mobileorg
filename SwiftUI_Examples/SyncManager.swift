@@ -148,6 +148,8 @@ class SyncManager: ObservableObject {
     /// Upload local changes to remote storage
     private func uploadLocalChanges() async throws {
         // Fetch local edit actions
+        // NOTE: Using typed fetch request here. Once all Core Data models are migrated to Swift,
+        // all fetch requests in DataController should use this pattern for type safety.
         let context = dataController.viewContext
         let request = NSFetchRequest<LocalEditAction>(entityName: "LocalEditAction")
         
