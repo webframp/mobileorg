@@ -398,6 +398,9 @@ class Settings: ObservableObject {
         didSet { UserDefaults.standard.set(webdavUsername, forKey: "webdavUsername") }
     }
     
+    // NOTE: In production, passwords should be stored in Keychain, not UserDefaults
+    // This is simplified for the example. Use Security framework APIs:
+    // SecItemAdd, SecItemUpdate, SecItemCopyMatching for secure password storage
     @Published var webdavPassword: String {
         didSet { UserDefaults.standard.set(webdavPassword, forKey: "webdavPassword") }
     }

@@ -104,6 +104,37 @@ FileChecksum.swift
 LocalEditAction.swift
 ```
 
+**Core Data Migration Steps:**
+1. Use Xcode's "Editor > Create NSManagedObject Subclass" for automatic generation
+2. Update property types from NSNumber/NSString to Swift natives (Int16, String, Date)
+3. Add computed properties for convenience (e.g., childrenArray)
+4. Mark classes with @objc for Objective-C interop during transition
+5. Update the .xcdatamodel if needed for new Swift types
+6. Ensure existing data is migrated (lightweight migration should work)
+
+**Example Swift Core Data Model:**
+```swift
+@objc(Node)
+public class Node: NSManagedObject {
+    @NSManaged public var nodeId: String?
+    @NSManaged public var heading: String?
+    @NSManaged public var body: String?
+    @NSManaged public var todoState: String?
+    @NSManaged public var priority: String?
+    @NSManaged public var tags: String?
+    @NSManaged public var sequenceIndex: Int16
+    @NSManaged public var createdAt: Date?
+    @NSManaged public var parent: Node?
+    @NSManaged public var children: NSSet?
+    
+    // Convenience computed properties
+    var childrenArray: [Node] {
+        let set = children as? Set<Node> ?? []
+        return set.sorted { $0.sequenceIndex < $1.sequenceIndex }
+    }
+}
+```
+
 #### 2.3 Create Data Access Layer
 - [ ] Implement Core Data stack with modern concurrency
 - [ ] Create repository pattern for data access
@@ -398,6 +429,125 @@ class SyncManager: ObservableObject {
         } catch {
             syncError = error
         }
+    }
+}
+```
+
+### 6. Security Best Practices
+
+#### 6.1 Keychain Storage for Sensitive Data
+
+Never store passwords or API tokens in UserDefaults. Use the Keychain:
+
+```swift
+import Security
+
+class KeychainHelper {
+    static func save(password: String, service: String, account: String) throws {
+        let data = password.data(using: .utf8)!
+        
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecValueData as String: data
+        ]
+        
+        // Delete any existing item
+        SecItemDelete(query as CFDictionary)
+        
+        // Add new item
+        let status = SecItemAdd(query as CFDictionary, nil)
+        guard status == errSecSuccess else {
+            throw KeychainError.unhandledError(status: status)
+        }
+    }
+    
+    static func retrieve(service: String, account: String) throws -> String {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account,
+            kSecReturnData as String: true
+        ]
+        
+        var result: AnyObject?
+        let status = SecItemCopyMatching(query as CFDictionary, &result)
+        
+        guard status == errSecSuccess,
+              let data = result as? Data,
+              let password = String(data: data, encoding: .utf8) else {
+            throw KeychainError.itemNotFound
+        }
+        
+        return password
+    }
+    
+    static func delete(service: String, account: String) throws {
+        let query: [String: Any] = [
+            kSecClass as String: kSecClassGenericPassword,
+            kSecAttrService as String: service,
+            kSecAttrAccount as String: account
+        ]
+        
+        let status = SecItemDelete(query as CFDictionary)
+        guard status == errSecSuccess || status == errSecItemNotFound else {
+            throw KeychainError.unhandledError(status: status)
+        }
+    }
+}
+
+enum KeychainError: Error {
+    case itemNotFound
+    case unhandledError(status: OSStatus)
+}
+```
+
+#### 6.2 Secure Network Communication
+
+Always use HTTPS and implement certificate pinning for sensitive connections:
+
+```swift
+class SecureNetworkService {
+    private let session: URLSession
+    
+    init() {
+        let configuration = URLSessionConfiguration.default
+        configuration.tlsMinimumSupportedProtocolVersion = .TLSv12
+        self.session = URLSession(
+            configuration: configuration,
+            delegate: CertificatePinningDelegate(),
+            delegateQueue: nil
+        )
+    }
+}
+
+class CertificatePinningDelegate: NSObject, URLSessionDelegate {
+    func urlSession(_ session: URLSession, 
+                   didReceive challenge: URLAuthenticationChallenge,
+                   completionHandler: @escaping (URLSession.AuthChallengeDisposition, URLCredential?) -> Void) {
+        // Implement certificate pinning validation
+        // Compare server certificate against pinned certificate
+    }
+}
+```
+
+#### 6.3 Data Protection
+
+Enable data protection for Core Data:
+
+```swift
+init() {
+    container = NSPersistentContainer(name: "MobileOrg")
+    
+    let storeURL = container.persistentStoreDescriptions.first?.url
+    try? FileManager.default.setAttributes(
+        [.protectionKey: FileProtectionType.complete],
+        ofItemAtPath: storeURL!.path
+    )
+    
+    container.loadPersistentStores { description, error in
+        // Handle loading
     }
 }
 ```

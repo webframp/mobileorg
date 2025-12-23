@@ -136,6 +136,19 @@ These examples show the structure but some functionality is marked as TODO:
 - Background sync
 - App extensions (widgets, etc.)
 
+### Important Caveats
+
+**Core Data Model References**: These examples reference `Node`, `Note`, `LocalEditAction`, and `FileChecksum` as if they were Swift-based Core Data models. The current codebase uses Objective-C Core Data models. Before these examples can compile, you would need to:
+
+1. Migrate the Core Data model to Swift using Xcode's "Editor > Create NSManagedObject Subclass"
+2. Update the model to use Swift types (String, Date, Int16, etc.)
+3. Update fetch requests to use the string-based entity names temporarily
+4. Eventually use type-safe Swift keypaths after migration
+
+**Security Note**: The password storage in SettingsView.swift uses UserDefaults for simplicity. In production code, passwords MUST be stored in the Keychain using the Security framework for proper encryption.
+
+**Async/Await Patterns**: The examples use modern async/await patterns that require iOS 15+. For backward compatibility with older iOS versions, you would need to use completion handlers or Combine publishers.
+
 ### Migration Strategy
 These examples can coexist with existing Objective-C code:
 1. Add Swift files to existing Xcode project
@@ -143,6 +156,7 @@ These examples can coexist with existing Objective-C code:
 3. Wrap UIKit views with `UIViewControllerRepresentable`
 4. Gradually migrate one feature at a time
 5. Keep both implementations during transition
+6. First migrate Core Data models to Swift before using these examples
 
 ## Usage
 

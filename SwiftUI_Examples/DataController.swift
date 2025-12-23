@@ -86,10 +86,10 @@ class DataController: ObservableObject {
     }
     
     /// Perform a background task
-    func performBackgroundTask<T>(_ block: @escaping (NSManagedObjectContext) async throws -> T) async throws -> T {
+    func performBackgroundTask<T>(_ block: @escaping (NSManagedObjectContext) throws -> T) async throws -> T {
         let context = newBackgroundContext()
         return try await context.perform {
-            let result = try await block(context)
+            let result = try block(context)
             if context.hasChanges {
                 try context.save()
             }
@@ -135,9 +135,9 @@ class DataController: ObservableObject {
     
     /// Fetch root nodes
     func fetchRootNodes() async throws -> [Node] {
-        let request = Node.fetchRequest()
+        let request = NSFetchRequest<Node>(entityName: "Node")
         request.predicate = NSPredicate(format: "parent == nil")
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \Node.sequenceIndex, ascending: true)]
+        request.sortDescriptors = [NSSortDescriptor(key: "sequenceIndex", ascending: true)]
         
         return try await viewContext.perform {
             try self.viewContext.fetch(request)
@@ -146,9 +146,9 @@ class DataController: ObservableObject {
     
     /// Fetch child nodes for a parent
     func fetchChildNodes(for parent: Node) async throws -> [Node] {
-        let request = Node.fetchRequest()
+        let request = NSFetchRequest<Node>(entityName: "Node")
         request.predicate = NSPredicate(format: "parent == %@", parent)
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \Node.sequenceIndex, ascending: true)]
+        request.sortDescriptors = [NSSortDescriptor(key: "sequenceIndex", ascending: true)]
         
         return try await viewContext.perform {
             try self.viewContext.fetch(request)
@@ -157,9 +157,9 @@ class DataController: ObservableObject {
     
     /// Search nodes by text
     func searchNodes(query: String) async throws -> [Node] {
-        let request = Node.fetchRequest()
+        let request = NSFetchRequest<Node>(entityName: "Node")
         request.predicate = NSPredicate(format: "heading CONTAINS[cd] %@ OR body CONTAINS[cd] %@", query, query)
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \Node.heading, ascending: true)]
+        request.sortDescriptors = [NSSortDescriptor(key: "heading", ascending: true)]
         request.fetchLimit = 100
         
         return try await viewContext.perform {
@@ -200,8 +200,8 @@ class DataController: ObservableObject {
     
     /// Fetch all notes
     func fetchNotes() async throws -> [Note] {
-        let request = Note.fetchRequest()
-        request.sortDescriptors = [NSSortDescriptor(keyPath: \Note.createdAt, ascending: false)]
+        let request = NSFetchRequest<Note>(entityName: "Note")
+        request.sortDescriptors = [NSSortDescriptor(key: "createdAt", ascending: false)]
         
         return try await viewContext.perform {
             try self.viewContext.fetch(request)

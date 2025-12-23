@@ -246,14 +246,14 @@ class SyncManager: ObservableObject {
                 
                 // Parse org file
                 if filename.hasSuffix(".org") {
-                    try await self.parseOrgFile(content, filename: filename, context: context)
+                    try self.parseOrgFile(content, filename: filename, context: context)
                 }
             }
         }
     }
     
     /// Parse an org-mode file
-    private func parseOrgFile(_ content: String, filename: String, context: NSManagedObjectContext) async throws {
+    private func parseOrgFile(_ content: String, filename: String, context: NSManagedObjectContext) throws {
         // TODO: Implement org-mode parser
         // This would parse the org-mode syntax and create/update Node objects
         print("Parsing \(filename)...")
