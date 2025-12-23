@@ -11,6 +11,7 @@ This directory contains example implementations showing how the MobileOrg app wo
    - Uses SwiftUI `App` protocol and `Scene` management
    - Handles app lifecycle with `ScenePhase`
    - Demonstrates environment object injection
+   - References view implementations from other files
 
 2. **DataController.swift**
    - Modern Core Data stack with Swift concurrency
@@ -43,6 +44,19 @@ This directory contains example implementations showing how the MobileOrg app wo
    - Dropbox and WebDAV configuration
    - Color pickers and system integration
    - About screen with links and credits
+   - NOTE: Password storage example shown; production code MUST use Keychain
+
+6. **NoteListView.swift**
+   - Notes/Capture view implementation
+   - List of captured notes
+   - Create new note functionality
+   - Basic placeholder implementation (to be enhanced)
+
+7. **SearchView.swift**
+   - Search view with debounced search
+   - Content-unavailable state for empty results
+   - Node search results with preview
+   - Basic placeholder implementation (to be enhanced)
 
 ## Key Modern iOS Features Demonstrated
 

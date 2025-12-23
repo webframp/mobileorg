@@ -5,6 +5,12 @@
 //  SwiftUI Migration Example
 //  This file demonstrates the proposed modern app structure
 //
+//  NOTE: This file references OutlineView, NoteListView, SearchView, and SettingsView
+//  which are implemented in separate files in this directory:
+//  - OutlineView.swift (full implementation)
+//  - SettingsView.swift (full implementation)
+//  - NoteListView and SearchView are placeholders to be implemented
+//
 //  This program is free software; you can redistribute it and/or
 //  modify it under the terms of the GNU General Public License
 //  as published by the Free Software Foundation; either version 2
@@ -171,44 +177,6 @@ struct OfflineBannerView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .padding(.horizontal)
         .padding(.bottom, 8)
-    }
-}
-
-// MARK: - Placeholder Views (to be implemented)
-
-struct OutlineView: View {
-    var body: some View {
-        NavigationStack {
-            Text("Outline View - To Be Implemented")
-                .navigationTitle("Outline")
-        }
-    }
-}
-
-struct NoteListView: View {
-    var body: some View {
-        NavigationStack {
-            Text("Note List View - To Be Implemented")
-                .navigationTitle("Capture")
-        }
-    }
-}
-
-struct SearchView: View {
-    var body: some View {
-        NavigationStack {
-            Text("Search View - To Be Implemented")
-                .navigationTitle("Search")
-        }
-    }
-}
-
-struct SettingsView: View {
-    var body: some View {
-        NavigationStack {
-            Text("Settings View - To Be Implemented")
-                .navigationTitle("Settings")
-        }
     }
 }
 
